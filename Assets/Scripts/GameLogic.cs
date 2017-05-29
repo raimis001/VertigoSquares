@@ -63,6 +63,18 @@ public class GameLogic : MonoBehaviour
 	[Range(1, 2)]
 	public float DistanceY = 1.1f;
 
+	public Color[] colors = {
+		new Color(0x00 / 255f, 0x37 / 255f, 0xFF / 255f, 1),
+		new Color(0x09 / 255f, 0xFF / 255f, 0x00 / 255f, 1),
+		new Color(0xFF / 255f, 0xEF / 255f, 0x05 / 255f, 1),
+		new Color(0xF6 / 255f, 0xEF / 255f, 0x05 / 255f, 1),
+		new Color(0x00 / 255f, 0xFF / 255f, 0xEA / 255f, 1),
+	};
+
+	[Header("GUI")]
+	public GuiNextColors NextColors;
+
+
 	internal int Columns = 5;
 	internal int Rows = 5;
 
@@ -93,6 +105,7 @@ public class GameLogic : MonoBehaviour
 				Board.Add(BoardIndex(i, j), BoardItem.Create(i,j, ItemPrefab));
 			}
 		}
+		NewMove();
 	}
 
 	// Update is called once per frame
@@ -109,6 +122,14 @@ public class GameLogic : MonoBehaviour
 			//Debug.Log("GUI");
 			return;
 		}
+		if (Input.GetMouseButtonUp(0))
+		{
+			//Release mouse
+			lastCube = null;
+			NewMove();
+			return;
+		}
+
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 		RaycastHit hit;
 
@@ -135,12 +156,7 @@ public class GameLogic : MonoBehaviour
 
 		//Debug.Log(hit.collider.transform.parent.name + " cube:" + cube);
 
-		if (Input.GetMouseButtonUp(0))
-		{
-			//Release mouse
-			lastCube = null;
-			return;
-		}
+
 
 		if (Input.GetMouseButtonDown(0))
 		{
@@ -193,6 +209,7 @@ public class GameLogic : MonoBehaviour
 		}
 		int color = GameColors[0];
 		GameColors.RemoveAt(0);
+		NextColors.Rearange();
 		return color;
 	}
 
@@ -202,9 +219,10 @@ public class GameLogic : MonoBehaviour
 
 		for (int i = 0; i < 3; i++)
 		{
-			GameColors.Add(Random.Range(1,6));
+			GameColors.Add(Random.Range(1,5));
 		}
+		NextColors.Rearange();
 
 	}
-		
+
 }
