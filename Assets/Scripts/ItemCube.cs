@@ -2,10 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ItemCube : MonoBehaviour
 {
 	public Transform Square;
+	public Text LabelText;
+	public ParticleSystem Effect;
+
 	[Range(0, 1)]
 	public float RotateTime = 2.5f;
 
@@ -15,19 +19,34 @@ public class ItemCube : MonoBehaviour
 	internal int col;
 	internal int row;
 
+	private int points;
 
-
-	private bool working;
-	// Use this for initialization
-	void Start()
+	internal int Points
 	{
-		//StartCoroutine(Test());
+		get { return points; }
+		set
+		{
+			points = value;
+			Label = points > 2 ? points.ToString() : "";
+		}
+	}
+	private string Label
+	{
+		set
+		{
+			if (!LabelText) return;
+			LabelText.text = value;
+		}
 	}
 
-	// Update is called once per frame
-	void Update()
-	{
+	private bool working;
 
+
+	void Start()
+	{
+		Label = "";
+
+		//StartCoroutine(Test());
 	}
 
 	public void Rotate(MoveDirection direction, int color)
@@ -43,17 +62,11 @@ public class ItemCube : MonoBehaviour
 			yield return null;
 		}
 		working = true;
-
-		Renderer render = Square.GetComponent<Renderer>();
-		var mat = render.materials;
+		if (LabelText) LabelText.gameObject.SetActive(false);
 
 		//Find cube side
 		int a = direction == MoveDirection.Left ? 1 : direction == MoveDirection.Right ? 3 : direction == MoveDirection.Up ? 2 : 0;
-
-		mat[4] = materials[0]; //Set default material
-		mat[a] = materials[this.color+1]; //Set new material
-
-		render.materials = mat;//Assign materials array
+		SetMaterials(a);
 
 		Debug.Log("Set color:" + color + " mat:" + materials[this.color].name);
 
@@ -84,13 +97,13 @@ public class ItemCube : MonoBehaviour
 
 		//Set final angle
 		Square.localRotation = end;
+		if (LabelText) LabelText.gameObject.SetActive(true);
 
 		working = false;
 	}
 
 	IEnumerator Test()
 	{
-
 		foreach (MoveDirection dir in Helper.GetEnumList<MoveDirection>())
 		{
 			yield return RotateCube(dir, 1);
@@ -100,6 +113,47 @@ public class ItemCube : MonoBehaviour
 		StartCoroutine(Test());
 	}
 
+	public void ClearScore()
+	{
+		//Clear label
+		Label = "";
+
+
+		if (points < 3)
+		{
+			points = 0;
+			return;
+		}
+
+		//Set non color material
+		SetMaterials();
+
+		//Set start rotation
+		Square.localEulerAngles = Vector3.zero;
+
+		color = 0;
+		points = 0;
+
+		if (Effect) Effect.Play(true);
+	}
+
+	void SetMaterials(int face = -1)
+	{
+		Renderer render = Square.GetComponent<Renderer>();
+		var mat = render.sharedMaterials;
+
+		for (int i = 0; i < mat.Length; i++)
+		{
+			mat[i] = materials[0];
+		}
+
+		if (face > -1)
+		{
+			mat[face] = materials[color + 1];
+		}
+
+		render.sharedMaterials = mat;
+	}
 	public override string ToString()
 	{
 		return " cube col:" + col + " row:" + row + " color:" + color;
