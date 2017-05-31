@@ -66,6 +66,8 @@ public class GameLogic : MonoBehaviour
 	void Awake()
 	{
 		Instance = this;
+		Progress.Load();
+		Debug.Log(Progress.Data);
 	}
 
 	// Use this for initialization
@@ -78,7 +80,8 @@ public class GameLogic : MonoBehaviour
 				Board.Add(BoardIndex(i, j), CreateCube(i,j));
 			}
 		}
-		Score = 0;
+		Score = Progress.Data.Score;
+
 		NewMove();
 	}
 
@@ -106,6 +109,10 @@ public class GameLogic : MonoBehaviour
 				c.ClearScore();
 			}
 
+			//Save score
+			Progress.Data.Score = score;
+			Progress.Save();
+
 			lastCube = null;
 			NewMove();
 			return;
@@ -117,7 +124,7 @@ public class GameLogic : MonoBehaviour
 		if (!Physics.Raycast(ray, out hit))
 		{
 			//No object unde mouse
-			Debug.Log("No object");
+			//Debug.Log("No object");
 			return;
 		}
 

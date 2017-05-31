@@ -68,7 +68,7 @@ public class ItemCube : MonoBehaviour
 		int a = direction == MoveDirection.Left ? 1 : direction == MoveDirection.Right ? 3 : direction == MoveDirection.Up ? 2 : 0;
 		SetMaterials(a);
 
-		Debug.Log("Set color:" + color + " mat:" + materials[this.color].name);
+		//Debug.Log("Set color:" + color + " mat:" + materials[this.color].name);
 
 		//Set cube rotation to zero
 		Square.localEulerAngles = Vector3.zero;
