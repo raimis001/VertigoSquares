@@ -342,6 +342,13 @@ public class GameLogic : MonoBehaviour
 	/// <param name="BoosterId"></param>
 	public void OnBoosterUse(int BoosterId)
 	{
+		if (BoosterId == 1)
+		{
+			//Next hint
+			NewMove();
+			return;
+		}
+
 		Debug.Log("Booster use:" + BoosterId);
 		boosterStatus = BoosterId + 1;
 	}
