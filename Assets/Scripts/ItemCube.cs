@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ public class ItemCube : MonoBehaviour
 	public Transform Square;
 	public Text LabelText;
 	public ParticleSystem Effect;
+	public GameObject selectedObject;
 
 	[Range(0, 1)]
 	public float RotateTime = 2.5f;
@@ -20,6 +22,17 @@ public class ItemCube : MonoBehaviour
 	internal int row;
 
 	private int points;
+
+	private bool selected;
+	internal bool Selected
+	{
+		set
+		{
+			selected = value;
+			if (!selectedObject) return;
+			if (!selected) selectedObject.SetActive(value);
+		}
+	}
 
 	internal int Points
 	{
@@ -63,6 +76,7 @@ public class ItemCube : MonoBehaviour
 		}
 		working = true;
 		if (LabelText) LabelText.gameObject.SetActive(false);
+		if (selectedObject) selectedObject.SetActive(false);
 
 		//Find cube side
 		int a = direction == MoveDirection.Left ? 1 : direction == MoveDirection.Right ? 3 : direction == MoveDirection.Up ? 2 : 0;
@@ -98,6 +112,7 @@ public class ItemCube : MonoBehaviour
 		//Set final angle
 		Square.localRotation = end;
 		if (LabelText) LabelText.gameObject.SetActive(true);
+		if (selectedObject) selectedObject.SetActive(selected);
 
 		working = false;
 	}
@@ -111,6 +126,27 @@ public class ItemCube : MonoBehaviour
 		}
 
 		StartCoroutine(Test());
+	}
+
+	public void DestroyColor()
+	{
+		//No color 
+		if (color < 1) return;
+
+		Label = "";
+
+		//Set non color material
+		SetMaterials();
+
+		//Set start rotation
+		Square.localEulerAngles = Vector3.zero;
+
+		color = 0;
+		points = 0;
+
+		if (selectedObject) selectedObject.SetActive(false);
+		if (Effect) Effect.Play(true);
+
 	}
 
 	public void ClearScore()
@@ -134,6 +170,7 @@ public class ItemCube : MonoBehaviour
 		color = 0;
 		points = 0;
 
+		if (selectedObject) selectedObject.SetActive(false);
 		if (Effect) Effect.Play(true);
 	}
 

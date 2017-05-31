@@ -63,14 +63,16 @@ public class GameLogic : MonoBehaviour
 	private ItemCube lastCube;
 	private List<ItemCube> path = new List<ItemCube>();
 
+	//Booster in use 0 - no booster 1 - hammer, 2 - redraw hint, 3 - show next hint
+	private int boosterStatus;
+
 	void Awake()
 	{
 		Instance = this;
 		Progress.Load();
-		Debug.Log(Progress.Data);
+		//Debug.Log(Progress.Data);
 	}
 
-	// Use this for initialization
 	void Start()
 	{
 		for (int i = 0; i < Columns; i++)
@@ -112,7 +114,7 @@ public class GameLogic : MonoBehaviour
 			//Save score
 			Progress.Data.Score = score;
 			Progress.Save();
-
+			if (lastCube) lastCube.Selected = false;
 			lastCube = null;
 			NewMove();
 			return;
@@ -138,6 +140,14 @@ public class GameLogic : MonoBehaviour
 
 		if (cube.color != 0)
 		{
+			//We have hammer booste
+			if (Input.GetMouseButtonDown(0) && boosterStatus == 1)
+			{
+				boosterStatus = 0;
+				cube.DestroyColor();
+			}
+
+
 			//Cube with color;
 			//Debug.Log("Click on colored cube");
 			return;
@@ -149,10 +159,14 @@ public class GameLogic : MonoBehaviour
 		
 		if (Input.GetMouseButtonDown(0))
 		{
+
 			//Begin drag
 			//Debug.Log("Rotate cube:" + cube);
 			cube.Rotate(MoveDirection.Right, GetColor());
+
+			if (lastCube) lastCube.Selected = false;
 			lastCube = cube;
+			if (lastCube) lastCube.Selected = true;
 			DrawPath(cube);
 
 			return;
@@ -164,15 +178,18 @@ public class GameLogic : MonoBehaviour
 			return;
 		}
 
+		int distRow = Mathf.Abs(lastCube.row - cube.row);
+		int distCol = Mathf.Abs(lastCube.col - cube.col);
 		if (
-			lastCube.col == cube.col && Mathf.Abs(lastCube.row - cube.row) != 1 ||
-			lastCube.row == cube.row && Mathf.Abs(lastCube.col - cube.col) != 1 )
+			distRow > 1 || distCol > 1 ||
+			distRow != 1 && distCol != 1 ||
+			distRow == 1 && distCol == 1
+			)
 		{
 			//Not valid distance
 			//Debug.Log("Not valid distance last:" + lastCube + " current:" + cube);
 			return;
 		}
-
 
 		MoveDirection dir = cube.col > lastCube.col
 			? MoveDirection.Right
@@ -185,7 +202,10 @@ public class GameLogic : MonoBehaviour
 		cube.Rotate(dir, GetColor());
 		DrawPath(cube);
 
+		if (lastCube) lastCube.Selected = false;
 		lastCube = cube;
+		if (lastCube) lastCube.Selected = true;
+
 	}
 
 	int GetColor()
@@ -315,4 +335,17 @@ public class GameLogic : MonoBehaviour
 		return result;
 	}
 
+#region BOOSTERS
+	/// <summary>
+	/// Event on booster is pressed
+	/// </summary>
+	/// <param name="BoosterId"></param>
+	public void OnBoosterUse(int BoosterId)
+	{
+		Debug.Log("Booster use:" + BoosterId);
+		boosterStatus = BoosterId + 1;
+	}
+#endregion
+
+	
 }
