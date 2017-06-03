@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
@@ -7,7 +6,9 @@ public enum MoveDirection
 {
 	Left, Right, Up, Down
 }
-	
+
+
+
 public class GameLogic : MonoBehaviour
 {
 
@@ -36,6 +37,7 @@ public class GameLogic : MonoBehaviour
 	public GuiNextColors NextColors;
 	public Text ScoreText;
 	public GuiSwitch SoundSwitch;
+	public GameObject PeepMove;
 
 	private int score;
 	internal int Score
@@ -59,6 +61,9 @@ public class GameLogic : MonoBehaviour
 	internal int Rows = 5;
 
 	internal List<int> GameColors = new List<int>();
+	private List<int> PeepColors = new List<int>();
+	private List<WeightClass<int>> WeightColors = new List<WeightClass<int>>();
+
 
 	private Dictionary<string, ItemCube> Board = new Dictionary<string, ItemCube>();
 
@@ -97,11 +102,18 @@ public class GameLogic : MonoBehaviour
 		score = Progress.Data.Score;
 		if (ScoreText) ScoreText.text = score.ToString();
 
+		//Create weighted list
+		WeightColors.Add(Weighted.Create(0.5f, 1));
+		WeightColors.Add(Weighted.Create(2, 2));
+		WeightColors.Add(Weighted.Create(2, 3));
+		WeightColors.Add(Weighted.Create(0.5f, 4));
+		
 		NewMove();
 	}
 
 	void Update()
 	{
+
 		if (!Input.GetMouseButtonDown(0) && !Input.GetMouseButtonUp(0) && !Input.GetMouseButton(0))
 		{
 			//No mouse interaction do nothing
@@ -235,11 +247,15 @@ public class GameLogic : MonoBehaviour
 
 	void NewMove()
 	{
+
 		GameColors.Clear();
 
 		for (int i = 0; i < 3; i++)
 		{
-			GameColors.Add(Random.Range(1,5));
+			//GameColors.Add(Random.Range(1,5));
+
+			//Get weighted color
+			GameColors.Add(WeightColors.GetWeighted());
 		}
 		NextColors.Rearange();
 	}
@@ -362,9 +378,24 @@ public class GameLogic : MonoBehaviour
 			return;
 		}
 
+		if (BoosterId == 2)
+		{
+			ShowPeep();
+			return;
+		}
+
 		Debug.Log("Booster use:" + BoosterId);
 		boosterStatus = BoosterId + 1;
 	}
+
+	void ShowPeep()
+	{
+		if (PeepMove)
+		{
+			PeepMove.SetActive(true);
+		}
+	}
+
 #endregion
 
 	
