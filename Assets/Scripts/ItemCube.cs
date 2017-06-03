@@ -128,7 +128,7 @@ public class ItemCube : MonoBehaviour
 		StartCoroutine(Test());
 	}
 
-	public void DestroyColor()
+	public void DestroyColor(bool effect = true)
 	{
 		//No color 
 		if (color < 1) return;
@@ -145,7 +145,7 @@ public class ItemCube : MonoBehaviour
 		points = 0;
 
 		if (selectedObject) selectedObject.SetActive(false);
-		if (Effect) Effect.Play(true);
+		if (effect && Effect) Effect.Play(true);
 
 	}
 

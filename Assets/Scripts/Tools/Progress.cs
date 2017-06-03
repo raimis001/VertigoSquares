@@ -6,6 +6,7 @@ using System.IO;
 public class PlayerData
 {
 	public int Score;
+	public int BestScore;
 	public string Board;
 	public override string ToString()
 	{

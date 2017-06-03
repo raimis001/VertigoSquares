@@ -38,7 +38,11 @@ public class GameLogic : MonoBehaviour
 	public GuiNextColors PeepNext;
 	public Text ScoreText;
 	public GuiSwitch SoundSwitch;
-	//public GameObject PeepMove;
+
+	[Header("Victory")]
+	public GameObject VictoryScreen;
+	public Text VictoryScore;
+	public Text VictoryBest;
 
 	private int score;
 	internal int Score
@@ -126,6 +130,7 @@ public class GameLogic : MonoBehaviour
 			//Debug.Log("GUI");
 			return;
 		}
+
 		if (Input.GetMouseButtonUp(0))
 		{
 			//Release mouse
@@ -139,10 +144,26 @@ public class GameLogic : MonoBehaviour
 
 			//Save score
 			Progress.Data.Score = score;
+			if (Progress.Data.BestScore < score)
+			{
+				Progress.Data.BestScore = score;
+			}
+
 			Progress.Save();
+
 			if (lastCube) lastCube.Selected = false;
 			lastCube = null;
-			NewMove();
+
+			int free = CalcFreeMoves();
+			if (free == 0)
+			{
+				//TODO: finish level
+				FinishLevel();
+			}
+			else
+			{
+				NewMove();
+			}
 			return;
 		}
 
@@ -188,13 +209,16 @@ public class GameLogic : MonoBehaviour
 
 			//Begin drag
 			//Debug.Log("Rotate cube:" + cube);
-			cube.Rotate(MoveDirection.Right, GetColor());
+			int c = GetColor();
+			if (c > -1)
+			{
+				cube.Rotate(MoveDirection.Right, c);
 
-			if (lastCube) lastCube.Selected = false;
-			lastCube = cube;
-			if (lastCube) lastCube.Selected = true;
-			DrawPath(cube);
-
+				if (lastCube) lastCube.Selected = false;
+				lastCube = cube;
+				if (lastCube) lastCube.Selected = true;
+				DrawPath(cube);
+			}
 			return;
 		}
 
@@ -216,6 +240,8 @@ public class GameLogic : MonoBehaviour
 			//Debug.Log("Not valid distance last:" + lastCube + " current:" + cube);
 			return;
 		}
+		int cc = GetColor();
+		if (cc < 0) return;
 
 		MoveDirection dir = cube.col > lastCube.col
 			? MoveDirection.Right
@@ -225,7 +251,7 @@ public class GameLogic : MonoBehaviour
 					? MoveDirection.Down
 					: MoveDirection.Up;
 
-		cube.Rotate(dir, GetColor());
+		cube.Rotate(dir, cc);
 		DrawPath(cube);
 
 		if (lastCube) lastCube.Selected = false;
@@ -238,7 +264,7 @@ public class GameLogic : MonoBehaviour
 	{
 		if (GameColors.Count < 1)
 		{
-			NewMove();
+			return -1;
 		}
 		int color = GameColors[0];
 		GameColors.RemoveAt(0);
@@ -263,16 +289,7 @@ public class GameLogic : MonoBehaviour
 			return;
 		}
 
-		//TODO: calc max free move
-		int count = Random.Range(2, 4);
-
-		for (int i = 0; i < count; i++)
-		{
-			//GameColors.Add(Random.Range(1,5));
-
-			//Get weighted color
-			GameColors.Add(WeightColors.GetWeighted());
-		}
+		GenerateColors(GameColors);
 		NextColors.Rearange(GameColors);
 	}
 
@@ -333,7 +350,7 @@ public class GameLogic : MonoBehaviour
 	/// <returns></returns>
 	ItemCube GetCube(int col, int row)
 	{
-		ItemCube cube = null;
+		ItemCube cube;
 
 		if (!Board.TryGetValue(BoardIndex(col, row), out cube))
 		{
@@ -344,6 +361,11 @@ public class GameLogic : MonoBehaviour
 		return cube;
 	}
 
+	/// <summary>
+	/// Calculate score in neighbours by cube
+	/// </summary>
+	/// <param name="cube"></param>
+	/// <returns></returns>
 	int CalcScorePath(ItemCube cube)
 	{
 		return CalcScorePath(cube.col, cube.row, cube.color);
@@ -380,6 +402,41 @@ public class GameLogic : MonoBehaviour
 		return result;
 	}
 
+	int CalcFreeMoves()
+	{
+		int result = 0;
+		path.Clear();
+
+		foreach (ItemCube cube in Board.Values)
+		{
+			if (cube.color > 0) continue;
+
+			int c = CalcScorePath(cube);
+			if (c > result)
+			{
+				result = c;
+			}
+		}
+		//Debug.Log(result);
+		return result;
+	}
+
+	void GenerateColors(List<int> list)
+	{
+		//TODO: get free moves
+
+		list.Clear();
+		int count = Random.Range(2, 4);
+
+		for (int i = 0; i < count; i++)
+		{
+			//GameColors.Add(Random.Range(1,5));
+
+			//Get weighted color
+			list.Add(WeightColors.GetWeighted());
+		}
+	}
+
 #region BOOSTERS
 	/// <summary>
 	/// Event on booster is pressed
@@ -406,15 +463,8 @@ public class GameLogic : MonoBehaviour
 
 	void ShowPeep()
 	{
-		int count = Random.Range(2, 4);
-
-		for (int i = 0; i < count; i++)
-		{
-			//GameColors.Add(Random.Range(1,5));
-
-			//Get weighted color
-			PeepColors.Add(WeightColors.GetWeighted());
-		}
+		GenerateColors(PeepColors);
+		
 		if (PeepNext)
 		{
 			PeepNext.Rearange(PeepColors);
@@ -423,7 +473,51 @@ public class GameLogic : MonoBehaviour
 
 	}
 
-#endregion
+	#endregion
 
+	void FinishLevel()
+	{
+
+		if (VictoryScore)
+		{
+			VictoryScore.text = Score.ToString();
+		}
+
+		if (VictoryBest)
+		{
+			VictoryBest.text = Progress.Data.BestScore.ToString();
+		}
+
+		if (VictoryScreen)
+		{
+			VictoryScreen.SetActive(true);
+		}
+
+		Progress.Data.Score = 0;
+		Progress.Data.Board = "";
+
+		Progress.Save();
+	}
+
+	public void StartNewGame()
+	{
+
+		Score = 0;
+
+
+		foreach (ItemCube cube in Board.Values)
+		{
+			cube.DestroyColor(false);
+		}
+
+		
+
+		if (VictoryScreen)
+		{
+			VictoryScreen.SetActive(false);
+		}
+
+		NewMove();
+	}
 	
 }

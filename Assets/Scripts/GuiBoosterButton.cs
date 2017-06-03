@@ -55,7 +55,14 @@ public class GuiBoosterButton : MonoBehaviour, IPointerDownHandler
 
 	void OnScoreChange(int deltaScore)
 	{
-		Debug.Log("Score change:" + deltaScore);
+		//Debug.Log("Score change:" + deltaScore);
+		if (deltaScore < 0)
+		{
+			currentFill = 0;
+			BoosterFill = 0;
+			return;
+		}
+
 		currentFill = Mathf.Clamp(currentFill + deltaScore, 0, FillNeed);
 		BoosterFill = (float)currentFill / FillNeed;
 	}
