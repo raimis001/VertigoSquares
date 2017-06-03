@@ -32,6 +32,7 @@ public class GameLogic : MonoBehaviour
 	[Header("GUI")]
 	public GuiNextColors NextColors;
 	public Text ScoreText;
+	public GuiSwitch SoundSwitch;
 
 	private int score;
 	internal int Score
@@ -75,6 +76,8 @@ public class GameLogic : MonoBehaviour
 
 	void Start()
 	{
+		if (SoundSwitch) SoundSwitch.Status = Prefs.SoundStatus;
+
 		for (int i = 0; i < Columns; i++)
 		{
 			for (int j = 0; j < Rows; j++)
