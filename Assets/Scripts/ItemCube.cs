@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -53,8 +50,7 @@ public class ItemCube : MonoBehaviour
 	}
 
 	private bool working;
-
-
+	
 	void Start()
 	{
 		Label = "";
