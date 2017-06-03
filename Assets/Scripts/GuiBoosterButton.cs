@@ -48,6 +48,8 @@ public class GuiBoosterButton : MonoBehaviour, IPointerDownHandler
 			return;
 		}
 
+		SoundManager.Play(SoundKind.Botton);
+
 		OnBoosterUse.Invoke();
 		currentFill = 0;
 		BoosterFill = 0;

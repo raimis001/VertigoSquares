@@ -74,6 +74,9 @@ public class ItemCube : MonoBehaviour
 		{
 			yield return null;
 		}
+
+		SoundManager.Play(SoundKind.Cube);
+
 		working = true;
 		if (LabelText) LabelText.gameObject.SetActive(false);
 		if (selectedObject) selectedObject.SetActive(false);
@@ -145,7 +148,11 @@ public class ItemCube : MonoBehaviour
 		points = 0;
 
 		if (selectedObject) selectedObject.SetActive(false);
-		if (effect && Effect) Effect.Play(true);
+		if (effect)
+		{
+			SoundManager.Play(SoundKind.Bomb, true);
+			if (Effect) Effect.Play(true);
+		}
 
 	}
 
@@ -172,6 +179,7 @@ public class ItemCube : MonoBehaviour
 
 		if (selectedObject) selectedObject.SetActive(false);
 		if (Effect) Effect.Play(true);
+		SoundManager.Play(SoundKind.Bomb,true);
 	}
 
 	void SetMaterials(int face = -1)

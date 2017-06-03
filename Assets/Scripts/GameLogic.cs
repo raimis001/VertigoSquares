@@ -190,6 +190,7 @@ public class GameLogic : MonoBehaviour
 			//We have hammer booste
 			if (Input.GetMouseButtonDown(0) && boosterStatus == 1)
 			{
+				SoundManager.Play(SoundKind.Hammer);
 				boosterStatus = 0;
 				cube.DestroyColor();
 			}
@@ -447,12 +448,14 @@ public class GameLogic : MonoBehaviour
 		if (BoosterId == 1)
 		{
 			//Next hint
+			SoundManager.Play(SoundKind.Switch);
 			NewMove();
 			return;
 		}
 
 		if (BoosterId == 2)
 		{
+			SoundManager.Play(SoundKind.Peep);
 			ShowPeep();
 			return;
 		}
@@ -492,6 +495,8 @@ public class GameLogic : MonoBehaviour
 		{
 			VictoryScreen.SetActive(true);
 		}
+
+		SoundManager.Play(SoundKind.Victory);
 
 		Progress.Data.Score = 0;
 		Progress.Data.Board = "";
