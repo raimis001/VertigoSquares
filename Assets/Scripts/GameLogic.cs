@@ -35,9 +35,10 @@ public class GameLogic : MonoBehaviour
 
 	[Header("GUI")]
 	public GuiNextColors NextColors;
+	public GuiNextColors PeepNext;
 	public Text ScoreText;
 	public GuiSwitch SoundSwitch;
-	public GameObject PeepMove;
+	//public GameObject PeepMove;
 
 	private int score;
 	internal int Score
@@ -241,23 +242,38 @@ public class GameLogic : MonoBehaviour
 		}
 		int color = GameColors[0];
 		GameColors.RemoveAt(0);
-		NextColors.Rearange();
+		NextColors.Rearange(GameColors);
 		return color;
 	}
 
 	void NewMove()
 	{
-
 		GameColors.Clear();
 
-		for (int i = 0; i < 3; i++)
+		if (PeepColors.Count > 0)
+		{
+			GameColors.AddRange(PeepColors);
+			NextColors.Rearange(GameColors);
+			PeepColors.Clear();
+
+			if (PeepNext)
+			{
+				PeepNext.gameObject.SetActive(false);
+			}
+			return;
+		}
+
+		//TODO: calc max free move
+		int count = Random.Range(2, 4);
+
+		for (int i = 0; i < count; i++)
 		{
 			//GameColors.Add(Random.Range(1,5));
 
 			//Get weighted color
 			GameColors.Add(WeightColors.GetWeighted());
 		}
-		NextColors.Rearange();
+		NextColors.Rearange(GameColors);
 	}
 
 	void DrawPath(ItemCube cube)
@@ -390,10 +406,21 @@ public class GameLogic : MonoBehaviour
 
 	void ShowPeep()
 	{
-		if (PeepMove)
+		int count = Random.Range(2, 4);
+
+		for (int i = 0; i < count; i++)
 		{
-			PeepMove.SetActive(true);
+			//GameColors.Add(Random.Range(1,5));
+
+			//Get weighted color
+			PeepColors.Add(WeightColors.GetWeighted());
 		}
+		if (PeepNext)
+		{
+			PeepNext.Rearange(PeepColors);
+			PeepNext.gameObject.SetActive(true);
+		}
+
 	}
 
 #endregion

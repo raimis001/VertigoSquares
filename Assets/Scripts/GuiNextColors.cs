@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class GuiNextColors : MonoBehaviour
 {
 
-	public void Rearange()
+	public void Rearange(List<int> colors)
 	{
-		int cnt = GameLogic.Instance.GameColors.Count;
+		int cnt = colors.Count;// GameLogic.Instance.GameColors.Count;
 
 		for (int i = 0; i < transform.childCount; i++)
 		{
@@ -26,7 +27,7 @@ public class GuiNextColors : MonoBehaviour
 			}
 
 			//Set next move color
-			image.color = GameLogic.Instance.colors[GameLogic.Instance.GameColors[i]];
+			image.color = GameLogic.Instance.colors[colors[i]];
 
 			transform.GetChild(i).gameObject.SetActive(true);
 		}
