@@ -89,6 +89,7 @@ public class GameLogic : MonoBehaviour
 	void Awake()
 	{
 		Instance = this;
+		//Progress.ClearData();
 		Progress.Load();
 		//Debug.Log(Progress.Data);
 	}
@@ -96,12 +97,26 @@ public class GameLogic : MonoBehaviour
 	void Start()
 	{
 		if (SoundSwitch) SoundSwitch.Status = Prefs.SoundStatus;
-
+		
+		string board = Progress.Data.Board;
 		for (int i = 0; i < Columns; i++)
 		{
 			for (int j = 0; j < Rows; j++)
 			{
-				Board.Add(BoardIndex(i, j), CreateCube(i,j));
+				ItemCube cube = CreateCube(i, j);
+				int idx = i * Columns + j;
+				if (!string.IsNullOrEmpty(board) && board.Length > idx)
+				{
+					int cl = 0;
+					if (int.TryParse(board[idx].ToString(),out cl))
+					{
+						cube.SetColor(cl);
+					}
+
+					//Debug.Log(board[idx].ToString());
+				}
+
+				Board.Add(BoardIndex(i, j), cube);
 			}
 		}
 		score = Progress.Data.Score;
@@ -147,6 +162,16 @@ public class GameLogic : MonoBehaviour
 			if (Progress.Data.BestScore < score)
 			{
 				Progress.Data.BestScore = score;
+			}
+			//Save board
+			Progress.Data.Board = "";
+			for (int i = 0; i < Columns; i++)
+			{
+				for (int j = 0; j < Rows; j++)
+				{
+					ItemCube cb = GetCube(i, j);
+					Progress.Data.Board = Progress.Data.Board + cb.color;
+				}
 			}
 
 			Progress.Save();

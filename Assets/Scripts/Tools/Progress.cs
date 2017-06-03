@@ -39,7 +39,7 @@ public static class Progress
 	{
 		if (File.Exists(FilePath))
 		{
-			//Debug.Log("Load data");
+			Debug.Log("Load data");
 			BinaryFormatter bf = new BinaryFormatter();
 			FileStream file = File.Open(FilePath, FileMode.Open);
 
@@ -48,6 +48,12 @@ public static class Progress
 			file.Close();
 
 		}
+	}
+
+	public static void ClearData()
+	{
+		Data = new PlayerData();
+		Save();
 	}
 }
 

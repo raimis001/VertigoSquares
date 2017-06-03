@@ -178,6 +178,12 @@ public class ItemCube : MonoBehaviour
 		SoundManager.Play(SoundKind.Bomb,true);
 	}
 
+	public void SetColor(int color)
+	{
+		this.color = color;
+		if (this.color == 0) return;
+		SetMaterials(4);
+	}
 	void SetMaterials(int face = -1)
 	{
 		Renderer render = Square.GetComponent<Renderer>();
