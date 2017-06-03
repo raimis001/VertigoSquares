@@ -13,6 +13,9 @@ public class GameLogic : MonoBehaviour
 
 	public static GameLogic Instance;
 
+	public delegate void ScoreChange(int deltaScore);
+	public static event ScoreChange OnScoreChange;
+
 	[Header("Setup")]
 	public GameObject ItemPrefab;
 
@@ -40,8 +43,14 @@ public class GameLogic : MonoBehaviour
 		get { return score; }
 		set
 		{
+			int oldScore = score;
 			score = value;
+
 			if (ScoreText) ScoreText.text = score.ToString();
+			if (OnScoreChange != null)
+			{
+				OnScoreChange(score - oldScore);
+			}
 		}
 	}
 
@@ -85,7 +94,8 @@ public class GameLogic : MonoBehaviour
 				Board.Add(BoardIndex(i, j), CreateCube(i,j));
 			}
 		}
-		Score = Progress.Data.Score;
+		score = Progress.Data.Score;
+		if (ScoreText) ScoreText.text = score.ToString();
 
 		NewMove();
 	}
